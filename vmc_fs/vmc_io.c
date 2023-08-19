@@ -1,4 +1,5 @@
 #include "vmc.h"
+#include <string.h>
 
 
 //  IO fonctions
@@ -1677,7 +1678,8 @@ int Vmc_Mount(iop_file_t *f, const char *fsname, const char *devname, int flag, 
     g_Vmc_Image[f->unit].card_size = lseek(g_Vmc_Image[f->unit].fd, 0, SEEK_END);
     lseek(g_Vmc_Image[f->unit].fd, 0, SEEK_SET);
 
-    if (g_Vmc_Image[f->unit].header.magic[0] != 'S' || g_Vmc_Image[f->unit].header.magic[1] != 'o' || g_Vmc_Image[f->unit].header.magic[2] != 'n' || g_Vmc_Image[f->unit].header.magic[3] != 'y' || g_Vmc_Image[f->unit].header.magic[4] != ' ' || g_Vmc_Image[f->unit].header.magic[5] != 'P' || g_Vmc_Image[f->unit].header.magic[6] != 'S' || g_Vmc_Image[f->unit].header.magic[7] != '2' || g_Vmc_Image[f->unit].header.magic[8] != ' ' || g_Vmc_Image[f->unit].header.magic[9] != 'M' || g_Vmc_Image[f->unit].header.magic[10] != 'e' || g_Vmc_Image[f->unit].header.magic[11] != 'm' || g_Vmc_Image[f->unit].header.magic[12] != 'o' || g_Vmc_Image[f->unit].header.magic[13] != 'r' || g_Vmc_Image[f->unit].header.magic[14] != 'y' || g_Vmc_Image[f->unit].header.magic[15] != ' ' || g_Vmc_Image[f->unit].header.magic[16] != 'C' || g_Vmc_Image[f->unit].header.magic[17] != 'a' || g_Vmc_Image[f->unit].header.magic[18] != 'r' || g_Vmc_Image[f->unit].header.magic[19] != 'd' || g_Vmc_Image[f->unit].header.magic[20] != ' ' || g_Vmc_Image[f->unit].header.magic[21] != 'F' || g_Vmc_Image[f->unit].header.magic[22] != 'o' || g_Vmc_Image[f->unit].header.magic[23] != 'r' || g_Vmc_Image[f->unit].header.magic[24] != 'm' || g_Vmc_Image[f->unit].header.magic[25] != 'a' || g_Vmc_Image[f->unit].header.magic[26] != 't') {
+    static const char *ps2_sign = "Sony PS2 Memory Card Format";
+    if (strcmp(g_Vmc_Image[f->unit].header.magic, ps2_sign)) {
         //  Card is not formated
         DEBUGPRINT(1, "vmc_fs: Warning vmc file %s is not formated\n", devname);
         if (!setDefaultSpec(f->unit)) {
