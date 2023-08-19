@@ -8,6 +8,9 @@
  *
  */
 
+#define DEBUG_MODULE "ps2ftpd"
+#include "../../debug.h"
+
 #include "FtpClient.h"
 #include "FtpServer.h"
 #include "FtpMessages.h"
@@ -154,9 +157,7 @@ void FtpClient_Send(FtpClient *pClient, int iReturnCode, const char *pString)
 
     // TODO: use a sendqueue here & handle in select-phase
     send(pClient->m_iControlSocket, buffer, strlen(buffer), 0);
-#ifdef BEDUG
-    printf("%08x >> %s", (unsigned int)pClient, buffer);
-#endif
+    DPRINTF("%08x >> %s", (unsigned int)pClient, buffer);
 }
 
 void FtpClient_OnConnect(FtpClient *pClient)
@@ -414,9 +415,7 @@ void FtpClient_OnDataConnect(FtpClient *pClient, const int *ip, int port)
     }
 
     if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-#ifdef DEBUG
-        printf("ps2ftpd: failed to create data socket\n");
-#endif
+        DPRINTF("failed to create data socket");
         FtpClient_OnDataFailed(pClient, NULL);
         return;
     }

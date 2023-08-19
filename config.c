@@ -293,7 +293,7 @@ char *preloadCNF(const char *path)
         return NULL;
     }
     CNF_size = genLseek(fd, 0, SEEK_END);
-    printf("CNF_size=%lld\n", CNF_size);
+    DPRINTF("CNF_size=%lld", CNF_size);
     genLseek(fd, 0, SEEK_SET);
     RAM_p = (char *)memalign(64, CNF_size);
     if (RAM_p == NULL) {
@@ -1935,19 +1935,18 @@ static void saveNetworkSettings(char *Message)
         int size;
 
         size = (int)genLseek(in_fd, 0, SEEK_END);
-        printf("size of existing file is %ibytes\n\r", size);
+        DPRINTF("size of existing file is %i bytes", size);
 
         ipconfigfile = (char *)memalign(64, size);
 
         genLseek(in_fd, 0, SEEK_SET);
         genRead(in_fd, ipconfigfile, size);
 
-
-        for (i = 0; (i <= size && ipconfigfile[i] != 0); i++)
-
-        {
-            // printf("%i-%c\n\r",i,ipconfigfile[i]);
+#ifdef DEBUG
+        for (i = 0; (i <= size && ipconfigfile[i] != 0); i++) {
+            DPRINTF("%i-%c",i,ipconfigfile[i]);
         }
+#endif
 
         sizeleft = size - i;
 

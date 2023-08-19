@@ -1,3 +1,8 @@
+#ifdef SIO_DEBUG
+sior_IMPORTS_start
+I_sio_printf
+sior_IMPORTS_end
+#endif
 
 cdvdman_IMPORTS_start
 I_sceCdReadClock

@@ -19,6 +19,7 @@
 #include "ps2ip.h"
 #include "net_fio.h"
 #include "hostlink.h"
+#include "debug.h"
 
 unsigned int remote_pc_addr = 0xffffffff;
 
@@ -30,14 +31,6 @@ static char recv_packet[PACKET_MAXSIZE] __attribute__((aligned(16)));
 static int pko_fileio_sock = -1;
 static int pko_fileio_active = 0;
 
-#ifdef DEBUG
-#define dbgprintf(args...) printf(args)
-#else
-#define dbgprintf(args...) \
-    do {                   \
-    } while (0)
-#endif
-
 //----------------------------------------------------------------------
 //
 void pko_close_socket(void)
@@ -46,7 +39,7 @@ void pko_close_socket(void)
 
     ret = disconnect(pko_fileio_sock);
     if (ret < 0) {
-        printf("pko_file: disconnect returned error %d\n", ret);
+        dbgprintf("pko_file: disconnect returned error %d\n", ret);
     }
     pko_fileio_sock = -1;
 }

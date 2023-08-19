@@ -16,6 +16,9 @@
 
 IRX_ID(MODNAME, 1, 1);
 
+#define DEBUG_MODULE "hdl_info"
+#include "../debug.h"
+
 int __attribute__((unused)) shutdown() { return 0; }
 
 /* function declaration */

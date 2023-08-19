@@ -18,6 +18,9 @@
 #include <ps2ip.h>
 #include <sifcmd.h>
 #include <sifman.h>
+#ifdef SIO_DEBUG
+#include "sior.h"
+#endif // SIO_DEBUG
 #include <stdio.h>
 #include <sysclib.h>
 #include <sysmem.h>

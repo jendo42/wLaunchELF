@@ -1,6 +1,7 @@
 #include <ioman.h>
 #include <sysclib.h>
 #include <secrman.h>
+#include "../debug.h"
 
 #define MODNAME "AllowDVDV"
 IRX_ID(MODNAME, 1, 4);

@@ -525,7 +525,7 @@ int RemoveParty(PARTYINFO Info)
     int ret = 0;
     char tmpName[MAX_ENTRY];
 
-    // printf("Remove Partition: %d\n", Info.Count);
+    DPRINTF("Remove Partition: %d", Info.Count);
 
     drawMsg(LNG(Removing_Current_Partition));
 
@@ -614,7 +614,7 @@ end:
 //--------------------------------------------------------------
 int RenameGame(PARTYINFO Info, char *newName)
 {
-    // printf("Rename Game: %d\n", Info.Count);
+    DPRINTF("Rename Game: %d", Info.Count);
     // int fd;
     int i, num = 1, ret = 0;
     char tmpName[MAX_ENTRY];
@@ -681,7 +681,7 @@ int ExpandParty(PARTYINFO Info, int size)
     t_hddFilesystem hddFs[MAX_PARTITIONS];
 
     drawMsg(LNG(Expanding_Current_Partition));
-    // printf("Expand Partition: %d\n", Info.Count);
+    DPRINTF("Expand Partition: %d", Info.Count);
 
     sprintf(tmpName, "hdd0:%s", Info.Name);
 
@@ -768,7 +768,7 @@ void hddManager(void)
         waitPadReady(0, 0);
         if (readpad()) {
             if (new_pad) {
-                // printf("Selected Partition: %d\n", browser_sel);
+                DPRINTF("Selected Partition: %d", browser_sel);
                 event |= 2;  // event |= pad command
             }
             if (new_pad & PAD_UP)
@@ -863,7 +863,7 @@ void hddManager(void)
             clrScr(setting->color[COLOR_BACKGR]);
 
             browser_nfiles = numParty;
-            // printf("Number Of Partition: %d\n", numParty);
+            DPRINTF("Number Of Partition: %d", numParty);
 
             if (top > browser_nfiles - rows)
                 top = browser_nfiles - rows;

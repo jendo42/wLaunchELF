@@ -18,7 +18,7 @@ int smbLogon_Server(int Index)
     load_smbman();
 
     if (smbServerList[Index].Server_Logon_f == 1) {
-        printf("smbLogon_Server: Request for duplicate logon noted.\n");
+        DPRINTF("Request for duplicate logon noted.");
         return -1;
     }
 
@@ -29,7 +29,7 @@ int smbLogon_Server(int Index)
         && (smbServerList[Index].PassHash_f == 0)) {
         ret = fileXioDevctl("smb:", SMB_DEVCTL_GETPASSWORDHASHES, (void *)&smbServerList[Index].Password, sizeof(smbServerList[Index].Password), (void *)&smbServerList[Index].PassHash, sizeof(smbServerList[Index].PassHash));
         if (ret) {
-            printf("smbLogon_Server: PassHash error %d\n", ret);
+            DPRINTF("PassHash error %d", ret);
             return -1;
         }
         smbServerList[Index].PassHash_f = 1;  // PassHash is now valid for future use
@@ -46,11 +46,11 @@ int smbLogon_Server(int Index)
 
     ret = fileXioDevctl("smb:", SMB_DEVCTL_LOGON, (void *)&logon, sizeof(logon), NULL, 0);
     if (ret) {
-        printf("smbLogon_Server: Logon Error %d\n", ret);
+        DPRINTF("Logon Error %d", ret);
         return -1;
     }
     smbServerList[Index].Server_Logon_f = 1;
-    printf("smbLogon_Server: Logon succeeded!\n");
+    DPRINTF("Logon succeeded!");
     return 0;  // Here basic Logon has been achieved
 }
 //------------------------------
@@ -142,7 +142,7 @@ int scanSMBCNF(const unsigned char *name, const unsigned char *value)
             if (test + 1 > smbServerListCount)
                 smbServerListCount = test + 1;
         } else {
-            printf("scanSMBCNF: Invalid smbIndex in CNF == %d\n", test);
+            DPRINTF("scanSMBCNF: Invalid smbIndex in CNF == %d", test);
             return -1;
         }
     } else if (!strcmp(name, "smbServer_IP"))

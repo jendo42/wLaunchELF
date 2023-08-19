@@ -10,6 +10,9 @@
  *
  */
 
+#define DEBUG_MODULE "ps2ftpd"
+#include "../../debug.h"
+
 #include "FileSystem.h"
 
 #ifndef LINUX
@@ -966,17 +969,13 @@ int FileSystem_MountDevice(FSContext *pContext, const char *mount_point, const c
         return -1;
 
     if ((pContext->m_kFile.device->type & 0xf0000000) != IOP_DT_FSEXT) {
-#ifdef DEBUG
-        printf("ps2ftpd: device fs is not extended.\n");
-#endif
+        DPRINTF("device fs is not extended.");
         pContext->m_eType = FS_INVALID;
         return -1;
     }
 
     if (pContext->m_kFile.device->ops->mount(&(pContext->m_kFile), mount_point, mount_file, 0, NULL, 0) < 0) {
-#ifdef DEBUG
-        printf("ps2ftpd: device-mount failed.\n");
-#endif
+        DPRINTF("device-mount failed.");
         pContext->m_eType = FS_INVALID;
         return -1;
     }
@@ -1000,17 +999,13 @@ int FileSystem_UnmountDevice(FSContext *pContext, const char *mount_point)
         return -1;
 
     if ((pContext->m_kFile.device->type & 0xf0000000) != IOP_DT_FSEXT) {
-#ifdef DEBUG
-        printf("ps2ftpd: device fs is not extended.\n");
-#endif
+        DPRINTF("device fs is not extended.");
         pContext->m_eType = FS_INVALID;
         return -1;
     }
 
     if (pContext->m_kFile.device->ops->umount(&(pContext->m_kFile), mount_point) < 0) {
-#ifdef DEBUG
-        printf("ps2ftpd: device-unmount failed.\n");
-#endif
+        DPRINTF("device-unmount failed.");
         pContext->m_eType = FS_INVALID;
         return -1;
     }
@@ -1032,17 +1027,13 @@ int FileSystem_SyncDevice(FSContext *pContext, const char *devname)
         return -1;
 
     if ((pContext->m_kFile.device->type & 0xf0000000) != IOP_DT_FSEXT) {
-#ifdef DEBUG
-        printf("ps2ftpd: device fs is not extended.\n");
-#endif
+        DPRINTF("device fs is not extended.");
         pContext->m_eType = FS_INVALID;
         return -1;
     }
 
     if (pContext->m_kFile.device->ops->sync(&(pContext->m_kFile), devname, 0) < 0) {
-#ifdef DEBUG
-        printf("ps2ftpd: device-sync failed.\n");
-#endif
+        DPRINTF("device-sync failed.");
         pContext->m_eType = FS_INVALID;
         return -1;
     }

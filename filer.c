@@ -435,7 +435,7 @@ int ynDialog(const char *message)
     dw = 2 * 2 + a * 2 + tw;
     dx = (SCREEN_WIDTH - dw) / 2;
     dy = (SCREEN_HEIGHT - dh) / 2;
-    //	printf("tw=%d\ndh=%d\ndw=%d\ndx=%d\ndy=%d\n", tw,dh,dw,dx,dy);
+    DPRINTF("tw=%d dh=%d dw=%d dx=%d dy=%d", tw,dh,dw,dx,dy);
 
     event = 1;  // event = initial entry
     while (1) {
@@ -534,7 +534,7 @@ void nonDialog(const char *message)
     dw = 2 * 2 + a * 2 + tw;
     dx = (SCREEN_WIDTH - dw) / 2;
     dy = (SCREEN_HEIGHT - dh) / 2;
-    // printf("tw=%d\ndh=%d\ndw=%d\ndx=%d\ndy=%d\n", tw,dh,dw,dx,dy);
+    DPRINTF("tw=%d dh=%d dw=%d dx=%d dy=%d", tw,dh,dw,dx,dy);
 
     drawPopSprite(setting->color[COLOR_BACKGR],
                   dx, dy,
@@ -980,7 +980,7 @@ int genOpen(char *path, int mode)
         mc_path[2] = path[2];
 
         if (fileXioGetStat(mc_path, &chk_stat) < 0) {
-            DPRINTF("Memory card is not formatted, skipping genOpen.\n");
+            DPRINTF("Memory card is not formatted, skipping genOpen.");
             return -1;
         }
     }
@@ -3997,7 +3997,9 @@ int getFilePath(char *out, int cnfmode)
         }  // ends 'if(browser_up)'
         //----- Process newly entered directory here (incl initial entry)
         if (browser_cd) {
+            DPRINTF("Changing directory to '%s'", path);
             browser_nfiles = setFileList(path, ext, files, cnfmode);
+            DPRINTF(" -> found %d files", browser_nfiles);
             if (!cnfmode) {  // Calculate free space (unless configuring)
                 if (!strncmp(path, "mc", 2)) {
                     mcGetInfo(path[2] - '0', 0, &mctype_PSx, &mcfreeSpace, NULL);
@@ -4025,7 +4027,7 @@ int getFilePath(char *out, int cnfmode)
                     pfs_str[3] += latestMount;
                     ZoneFree = fileXioDevctl(pfs_str, PFSCTL_GET_ZONE_FREE, NULL, 0, NULL, 0);
                     ZoneSize = fileXioDevctl(pfs_str, PFSCTL_GET_ZONE_SIZE, NULL, 0, NULL, 0);
-                    // printf("ZoneFree==%d  ZoneSize==%d\r\n", ZoneFree, ZoneSize);
+                    DPRINTF("ZoneFree==%llu  ZoneSize==%llu", ZoneFree, ZoneSize);
                     freeSpace = ZoneFree * ZoneSize;
                     vfreeSpace = TRUE;
                 } else if (!strncmp(path, "dvr_hdd", 7) && strcmp(path, "dvr_hdd0:/")) {
@@ -4036,7 +4038,7 @@ int getFilePath(char *out, int cnfmode)
                     pfs_str[7] += latestMount;
                     ZoneFree = fileXioDevctl(pfs_str, PFSCTL_GET_ZONE_FREE, NULL, 0, NULL, 0);
                     ZoneSize = fileXioDevctl(pfs_str, PFSCTL_GET_ZONE_SIZE, NULL, 0, NULL, 0);
-                    // printf("ZoneFree==%d  ZoneSize==%d\r\n", ZoneFree, ZoneSize);
+                    DPRINTF("ZoneFree==%llu  ZoneSize==%llu", ZoneFree, ZoneSize);
                     freeSpace = ZoneFree * ZoneSize;
                     vfreeSpace = TRUE;
                 }
@@ -4299,12 +4301,6 @@ void submenu_func_GetSize(char *mess, const char *path, FILEINFO *files)
     u64 size;
     int ret, text_pos, text_inc, sel = -1;
 
-    /*
-    int test;
-    iox_stat_t stats;
-    PS2TIME *time;
-*/
-
     drawMsg(LNG(Checking_Size));
     if (nmarks == 0) {
         size = getFileSize(path, &files[browser_sel]);
@@ -4321,7 +4317,7 @@ void submenu_func_GetSize(char *mess, const char *path, FILEINFO *files)
                 size = -1;
         }
     }
-    printf("size result = %llu\r\n", size);
+    DPRINTF("size result = %llu", size);
     if (size < 0) {
         strcpy(mess, LNG(Size_test_Failed));
         text_pos = strlen(mess);
@@ -4343,29 +4339,32 @@ void submenu_func_GetSize(char *mess, const char *path, FILEINFO *files)
 
         sprintf(filepath, "%s%s", path, files[sel].name);
         //----- Start of section for debug display of attributes -----
-        /*
-        printf("path =\"%s\"\r\n", path);
-        printf("file =\"%s\"\r\n", files[sel].name);
+#ifdef DEBUG
+        int test;
+        iox_stat_t stats;
+        PS2TIME *time;
+        DPRINTF("path =\"%s\"", path);
+        DPRINTF("file =\"%s\"", files[sel].name);
         if	(!strncmp(filepath, "host:/", 6))
             makeHostPath(filepath+5, filepath+6);
         test = fileXioGetStat(filepath, &stats);
-        printf("test = %d\r\n", test);
-        printf("mode = %08X\r\n", stats.mode);
-        printf("attr = %08X\r\n", stats.attr);
-        printf("size = %08X\r\n", stats.size);
+        DPRINTF("test = %d", test);
+        DPRINTF("mode = %08X", stats.mode);
+        DPRINTF("attr = %08X", stats.attr);
+        DPRINTF("size = %08X", stats.size);
         time = (PS2TIME *) stats.ctime;
-        printf("ctime = %04d.%02d.%02d %02d:%02d:%02d.%02d\r\n",
+        DPRINTF("ctime = %04d.%02d.%02d %02d:%02d:%02d.%02d",
             time->year,time->month,time->day,
             time->hour,time->min,time->sec,time->unknown);
         time = (PS2TIME *) stats.atime;
-        printf("atime = %04d.%02d.%02d %02d:%02d:%02d.%02d\r\n",
+        DPRINTF("atime = %04d.%02d.%02d %02d:%02d:%02d.%02d",
             time->year,time->month,time->day,
             time->hour,time->min,time->sec,time->unknown);
         time = (PS2TIME *) stats.mtime;
-        printf("mtime = %04d.%02d.%02d %02d:%02d:%02d.%02d\r\n",
+        DPRINTF("mtime = %04d.%02d.%02d %02d:%02d:%02d.%02d",
             time->year,time->month,time->day,
             time->hour,time->min,time->sec,time->unknown);
-*/
+#endif // DEBUG
         //----- End of section for debug display of attributes -----
         sprintf(mess + text_pos, " m=%04X %04d.%02d.%02d %02d:%02d:%02d%n",
                 files[sel].stats.AttrFile,

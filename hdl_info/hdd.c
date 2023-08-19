@@ -14,6 +14,9 @@
 #include "hdl.h"
 #include "apa.h"
 
+#define DEBUG_MODULE "hdl_info"
+#include "../debug.h"
+
 static hdl_games_list_t *games = NULL;
 static hio_t *g_hio = NULL;
 
@@ -178,7 +181,7 @@ int HdlRenameGame(void *Data)
                 hdl_game_info_t *game = &games->games[i];
 
                 if (!strcmp(Packet->OldName, game->name)) {
-                    printf("Renaming Game %s To %s.\n", game->name, Packet->NewName);
+                    DPRINTF("Renaming Game %s To %s.", game->name, Packet->NewName);
                     strcpy(game->name, Packet->NewName);
                     if ((err = hdl_glist_write(g_hio, game)) == 0)
                         return 0;  // Return flag for no error

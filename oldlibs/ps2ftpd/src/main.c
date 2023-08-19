@@ -9,6 +9,9 @@
  * c0cfb60b c7d2fe44 c3c9fc45
  */
 
+#define DEBUG_MODULE "ps2ftpd"
+#include "../../debug.h"
+
 #include "FtpServer.h"
 
 #ifndef LINUX
@@ -49,7 +52,7 @@ int process_args(FtpServer *pServer, int argc, char *argv[])
 
             FtpServer_SetPassword(pServer, argv[++i]);
         } else {
-            printf("ps2ftpd: unknown argument '%s'\n", argv[i]);
+            DPRINTF("unknown argument '%s'", argv[i]);
             return -1;
         }
     }
@@ -85,7 +88,7 @@ s32 _start(int argc, char *argv[])
     // TODO: fix CD/DVD support
     // printf("cdinit: %d\n",sceCdInit(CdMmodeDvd));
 
-    printf("ps2ftpd: starting\n");
+    DPRINTF("starting");
 
     // create server
 
@@ -95,7 +98,7 @@ s32 _start(int argc, char *argv[])
 
     if (process_args(&srv, argc, argv) < 0) {
         FtpServer_Destroy(&srv);
-        printf("ps2ftpd: could not parse arguments\n");
+        DPRINTF("could not parse arguments");
         return MODULE_NO_RESIDENT_END;
     }
 
@@ -105,7 +108,7 @@ s32 _start(int argc, char *argv[])
 
     if (-1 == FtpServer_Start(&srv)) {
         FtpServer_Destroy(&srv);
-        printf("ps2ftpd: could not create server\n");
+        DPRINTF("could not create server");
         return MODULE_NO_RESIDENT_END;
     }
 
@@ -124,12 +127,12 @@ s32 _start(int argc, char *argv[])
 
         if ((i = StartThread(pid, NULL)) < 0) {
             FtpServer_Destroy(&srv);
-            printf("ps2ftpd: StartThread failed (%d)\n", i);
+            DPRINTF("StartThread failed (%d)", i);
             return MODULE_NO_RESIDENT_END;
         }
     } else {
         FtpServer_Destroy(&srv);
-        printf("ps2ftpd: CreateThread failed (%d)\n", pid);
+        DPRINTF("CreateThread failed (%d)", pid);
         return MODULE_NO_RESIDENT_END;
     }
 
@@ -151,7 +154,7 @@ int main(int argc, char *argv[])
 
     FtpServer_SetPort(&srv, 2500);  // 21 privileged under linux
     if (process_args(&srv, argc, argv) < 0) {
-        printf("ps2ftpd: could not parse arguments\n");
+        DPRINTF("could not parse arguments");
         FtpServer_Destroy(&srv);
         return 1;
     }

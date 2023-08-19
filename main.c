@@ -6,6 +6,9 @@
 #include "SMB_test.h"
 #include "ps2smb.h"
 #endif
+#ifdef SIO_DEBUG
+#include <sior_rpc.h>
+#endif
 
 extern u8 iomanx_irx[];
 extern int size_iomanx_irx;
@@ -71,19 +74,6 @@ extern u8 dvrdrv_irx[];
 extern int size_dvrdrv_irx;
 extern u8 dvrfile_irx[];
 extern int size_dvrfile_irx;
-
-//#define DEBUG
-#ifdef DEBUG
-#define dbgprintf(args...) scr_printf(args)
-#define dbginit_scr()      init_scr()
-#else
-#define dbgprintf(args...) \
-    do {                   \
-    } while (0)
-#define dbginit_scr() \
-    do {              \
-    } while (0)
-#endif
 
 enum {
     BUTTON,
@@ -251,6 +241,24 @@ static void Reset(void);
 static void InitializeBootExecPath();
 //---------------------------------------------------------------------------
 // executable code
+//---------------------------------------------------------------------------
+// Function to print debug messages
+//------------------------------
+#ifdef SIO_DEBUG
+int sio_printf(const char *format, ...)
+{
+    char buffer[2048];
+    int size;
+    va_list opt;
+    va_start(opt, format);
+    size = vsnprintf(buffer, sizeof(buffer), format, opt);
+    sio_write(buffer, size);
+    va_end(opt);
+    return size;
+}
+#endif // SIO_DEBUG
+//------------------------------
+// endfunc PrintRow
 //---------------------------------------------------------------------------
 // Function to print a text row to the 'gs' screen
 //------------------------------
@@ -672,7 +680,7 @@ static void delay(int count)
 //---------------------------------------------------------------------------
 static void initsbv_patches(void)
 {
-    dbgprintf("Init MrBrown sbv_patches\n");
+    DPRINTF("Init MrBrown sbv_patches");
     sbv_patch_enable_lmb();
     sbv_patch_disable_prefix_check();
 }
@@ -966,19 +974,6 @@ static void loadBasicModules(void)
 
     SifLoadModule("rom0:SIO2MAN", 0, NULL);
 
-#ifdef SIO_DEBUG
-    int id;
-    // I call this just after SIO2MAN have been loaded
-    sio_init(38400, 0, 0, 0, 0);
-    DPRINTF("Hello from EE SIO!\n");
-
-    SIOR_Init(0x20);
-
-    id = SifExecModuleBuffer(sior_irx, size_sior_irx, 0, NULL, &ret);
-    scr_printf("\t sior id=%d _start ret=%d\n", id, ret);
-    DPRINTF("sior id=%d _start ret=%d\n", id, ret);
-#endif
-
     SifExecModuleBuffer(mcman_irx, size_mcman_irx, 0, NULL, &ret);
     SifExecModuleBuffer(mcserv_irx, size_mcserv_irx, 0, NULL, &ret);
 
@@ -1040,7 +1035,7 @@ int uLE_cdStop(int event)
         if ((cdmode != old_cdmode)  // if this was a new detection
             && ((cdmode == SCECdDVDV) || (cdmode == SCECdPS2DVD))) {
             test = Check_ESR_Disc();
-            printf("Check_ESR_Disc => %d\n", test);
+            DPRINTF("Check_ESR_Disc => %d", test);
             if (test > 0) {  // ESR Disc ?
                 uLE_cdmode = (cdmode == SCECdPS2DVD) ? SCECdESRDVD_1 : SCECdESRDVD_0;
             }
@@ -1345,7 +1340,7 @@ static void startKbd(void)
     void *mapBase;
     int mapSize;
 
-    printf("Entering startKbd()\r\n");
+    DPRINTF("Entering startKbd()");
     if (setting->usbkbd_used) {
         loadKbdModules();
         PS2KbdInit();
@@ -1354,7 +1349,7 @@ static void startKbd(void)
             int kbd_fd;
 
             if ((kbd_fd = open(PS2KBD_DEVFILE, O_RDONLY)) >= 0) {
-                printf("kbd_fd=%d; Loading Kbd map file \"%s\"\r\n", kbd_fd, setting->kbdmap_file);
+                DPRINTF("kbd_fd=%d; Loading Kbd map file \"%s\"", kbd_fd, setting->kbdmap_file);
                 if (loadExternalFile(setting->kbdmap_file, &mapBase, &mapSize)) {
                     if (mapSize == 0x600) {
                         _ps2sdk_ioctl(kbd_fd, PS2KBD_IOCTL_SETKEYMAP, mapBase);
@@ -1362,7 +1357,7 @@ static void startKbd(void)
                         _ps2sdk_ioctl(kbd_fd, PS2KBD_IOCTL_SETCTRLMAP, (void *)(((u8 *)mapBase) + 0x400));
                         _ps2sdk_ioctl(kbd_fd, PS2KBD_IOCTL_SETALTMAP, (void *)(((u8 *)mapBase) + 0x500));
                     }
-                    printf("Freeing buffer after setting Kbd maps\r\n");
+                    DPRINTF("Freeing buffer after setting Kbd maps");
                     free(mapBase);
                 }
                 close(kbd_fd);
@@ -1768,6 +1763,7 @@ static void Execute(const char *pathin)
     char dvdpl_path[] = "mc0:/BREXEC-DVDPLAYER/dvdplayer.elf";
     int dvdpl_update;
 
+    DPRINTF("Execute '%s'", pathin);
     if (pathin[0] == 0)
         return;
 
@@ -1895,7 +1891,7 @@ Recurse_for_ESR:  // Recurse here for PS2Disc command with ESR disc
         if (uLE_cdDiscValid()) {
             if (cdmode == SCECdDVDV) {
                 x = Check_ESR_Disc();
-                printf("Check_ESR_Disc => %d\n", x);
+                DPRINTF("Check_ESR_Disc => %d", x);
                 if (x > 0) {  // ESR Disc, so launch ESR
                     if (setting->LK_Flag[SETTING_LK_ESR] && setting->LK_Path[SETTING_LK_ESR][0])
                         strcpy(path, setting->LK_Path[SETTING_LK_ESR]);
@@ -2112,6 +2108,7 @@ Recurse_for_ESR:  // Recurse here for PS2Disc command with ESR disc
 // dlanor: but changed now, as the original was badly bugged
 static void Reset()
 {
+    DPRINTF("Reset");
     SifInitRpc(0);
     while (!SifIopReset("", 0)) {
     };
@@ -2285,6 +2282,13 @@ int main(int argc, char *argv[])
     for (i = 0; (i < argc) && (i < 8); i++)
         boot_argv[i] = argv[i];
 
+#ifdef SIO_DEBUG
+    SifExecModuleBuffer(sior_irx, size_sior_irx, 0, NULL, &i);
+    sio_init(38400, 0, 0, 0, 0);
+    SIOR_Init(0x20);
+#endif
+
+    DPRINTF("Starting UP " GIT_VERSION);
     Reset();
     Init_Default_Language();
 
@@ -2390,8 +2394,8 @@ int main(int argc, char *argv[])
         getIpConfig();
         initHOST();
     }
+#if 0
     // Last chance to look at bootup screen, so allow braking here
-    /*
     if(readpad() && (new_pad && PAD_UP))
     { scr_printf("________ Boot paused. Press 'Circle' to continue.\n");
         while(1)
@@ -2400,7 +2404,7 @@ int main(int argc, char *argv[])
             while(!readpad());
         }
     }
-*/
+#endif
     setupGS();
     gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(0x00, 0x00, 0x00, 0x00, 0x00));
 
@@ -2440,6 +2444,7 @@ int main(int argc, char *argv[])
     // Here nearly everything is ready for the main menu event loop
     // But before we start that, we need to validate CNF_Path
     Validate_CNF_Path();
+    DPRINTF("Entering main loop");
 
     RunPath[0] = 0;  // Nothing to run yet
     cdmode = -1;     // flag unchecked cdmode state

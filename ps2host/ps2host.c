@@ -11,6 +11,7 @@
 #include <intrman.h>
 #include <types.h>
 #include <sifrpc.h>
+#include "../debug.h"
 #if 0 /* EEUG: WHY ? */
 #include <cdvdman.h>
 #endif

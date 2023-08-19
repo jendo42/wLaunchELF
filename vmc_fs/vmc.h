@@ -92,10 +92,12 @@ typedef enum {
 
 
 // The debugging functions, very very handy
+#define DEBUG_MODULE "vmc_fs"
+#include "../debug.h"
 #ifdef DEBUG
 #define DEBUGPRINT(level, args...) \
     if (DEBUG >= level)            \
-    printf(args)
+    DPRINTF(args)
 #else
 #define DEBUGPRINT(args...)
 #endif

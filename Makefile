@@ -2,6 +2,7 @@
 
 SMB ?= 0
 SIO_DEBUG ?= 0
+DEBUG ?= 0
 #set SMB to 1 to build uLe with smb support
 
 EE_BIN = BOOT-UNC.ELF
@@ -14,8 +15,24 @@ EE_OBJS = main.o pad.o config.o elf.o draw.o loader_elf.o filer.o \
 	hdd.o hdl_rpc.o hdl_info_irx.o editor.o timer.o jpgviewer.o icon.o lang.o\
 	font_uLE.o makeicon.o chkesr.o allowdvdv_irx.o hwinfo.o
 
+ifeq ($(SIO_DEBUG),1)
+	DEBUG = 1
+	IOP_CFLAGS += -DSIO_DEBUG
+	EE_CFLAGS += -DSIO_DEBUG
+	EE_OBJS += sior_irx.o
+endif
+
+ifeq ($(DEBUG),1)
+	EE_CFLAGS += -DDEBUG
+	IOP_CFLAGS += -DDEBUG
+endif
+
+export EE_CFLAGS
+export IOP_CFLAGS
+
 ifeq ($(SMB),1)
-	EE_OBJS += smbman.o
+	EE_CFLAGS += -DSMB
+	EE_OBJS += smbman_irx.o
 endif
 
 EE_OBJS_DIR = obj/
@@ -26,16 +43,15 @@ EE_INCS := -I$(PS2DEV)/gsKit/include -I$(PS2SDK)/ports/include
 
 EE_LDFLAGS := -L$(PS2DEV)/gsKit/lib -L$(PS2SDK)/ports/lib -s
 EE_LIBS = -lgskit -ldmakit -ljpeg_ps2_addons -ljpeg -lpad -lmc -lhdd -lkbd -lm \
-	-lcdvd -lfileXio -lpatches -lpoweroff -ldebug -lsior
-EE_CFLAGS := -mno-gpopt -G0
+	-lcdvd -lfileXio -lpatches -lpoweroff
+EE_CFLAGS += -mno-gpopt -G0
 
-ifeq ($(SIO_DEBUG),1)
-	EE_CFLAGS += -DSIO_DEBUG
-	EE_OBJS += sior_irx.o
+ifeq ($(DEBUG),1)
+	EE_LIBS += -ldebug
 endif
 
-ifeq ($(SMB),1)
-	EE_CFLAGS += -DSMB
+ifeq ($(SIO_DEBUG),1)
+	EE_LIBS += -lsior
 endif
 
 BIN2C = $(PS2SDK)/bin/bin2c
@@ -50,6 +66,10 @@ $(EE_BIN_PKD): $(EE_BIN)
 # use env. variable "PS2HOSTNAME" to set the target machine
 run: all
 	ps2client -t 1 execee host:$(EE_BIN)
+
+rund: all
+	ps2client execee host:$(EE_BIN)
+
 reset: clean
 	ps2client reset
 
@@ -150,6 +170,11 @@ $(EE_ASM_DIR)smbman_irx.c: $(PS2SDK)/iop/irx/smbman.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ smbman_irx
 endif
 
+ifeq ($(SIO_DEBUG),1)
+$(EE_ASM_DIR)sior_irx.c: $(PS2SDK)/iop/irx/sior.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ sior_irx
+endif
+
 vmc_fs/vmc_fs.irx: vmc_fs
 	$(MAKE) -C $<
 
@@ -164,9 +189,6 @@ $(EE_ASM_DIR)loader_elf.c: loader/loader.elf | $(EE_ASM_DIR)
 
 $(EE_ASM_DIR)ps2kbd_irx.c: $(PS2SDK)/iop/irx/ps2kbd.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ ps2kbd_irx
-
-$(EE_ASM_DIR)sior_irx.c: $(PS2SDK)/iop/irx/sior.irx | $(EE_ASM_DIR)
-	$(BIN2C) $< $@ sior_irx
 
 AllowDVDV/AllowDVDV.irx: AllowDVDV
 	$(MAKE) -C $<

@@ -22,6 +22,9 @@
 #include <intrman.h>
 #include <poweroff.h>
 #include <sifcmd.h>
+#ifdef SIO_DEBUG
+#include "sior.h"
+#endif // SIO_DEBUG
 #include <stdio.h>
 #include <sysclib.h>
 #include <sysmem.h>

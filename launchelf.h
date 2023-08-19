@@ -6,8 +6,7 @@
 //#define ULE_VERDATE __DATE__
 //#endif
 #include "githash.h"
-
-//#define SIO_DEBUG 1	//defined only for debug versions using the EE_SIO patch
+#include "debug.h"
 
 #include <stdio.h>
 #include <tamtypes.h>
@@ -44,19 +43,10 @@
 #include "hdl_rpc.h"
 #include "hwinfo.h"
 
-#include <sio.h>
-#include <sior_rpc.h>
-
 #define NEWLIB_PORT_AWARE
 #include <fileXio_rpc.h>
 #include <io_common.h>
 #include <ps2sdkapi.h>
-
-#ifdef SIO_DEBUG
-#define DPRINTF(args...) sio_printf(args)
-#else
-#define DPRINTF(args...) printf(args)
-#endif
 
 #define TRUE  1
 #define FALSE 0

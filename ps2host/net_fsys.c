@@ -16,16 +16,9 @@
 #include <thsemap.h>
 
 #include "net_fio.h"
+#include "debug.h"
 
 #define IOCTL_RENAME 0xFEEDC0DE  // dlanor: Used for the Ioctl request code => Rename
-
-#ifdef DEBUG
-#define dbgprintf(args...) printf(args)
-#else
-#define dbgprintf(args...) \
-    do {                   \
-    } while (0)
-#endif
 
 static char fsname[] = "host";
 
@@ -93,10 +86,10 @@ static void fsysInit(iop_device_t *driver)
         int i;
 
         if ((i = StartThread(pid, NULL)) < 0) {
-            printf("StartThread failed (%d)\n", i);
+            dbgprintf("StartThread failed (%d)\n", i);
         }
     } else {
-        printf("CreateThread failed (%d)\n", pid);
+        dbgprintf("CreateThread failed (%d)\n", pid);
     }
 
     fsys_pid = pid;
@@ -121,7 +114,7 @@ static int dummyFormat()
 {
     remove_flag = 0;
 
-    printf("dummy Format function called\n");
+    dbgprintf("dummy Format function called\n");
     return -5;
 }
 //----------------------------------------------------------------------------
@@ -250,11 +243,11 @@ static int fsysIoctl(iop_file_t *file, unsigned long request, void *data)
             if ((ret == 0) || (ret == -6))
                 renamed_fd = remote_fd;
         } else {
-            printf("Ioctl Rename function used incorrectly.\n");
+            dbgprintf("Ioctl Rename function used incorrectly.\n");
             ret = -5;
         }
     } else {
-        printf("Ioctl function called with invalid request code\n");
+        dbgprintf("Ioctl function called with invalid request code\n");
         ret = -5;
     }
     return ret;
@@ -379,7 +372,7 @@ static int dummyGetstat()
 {
     remove_flag = 0;
 
-    printf("dummy Getstat function called\n");
+    dbgprintf("dummy Getstat function called\n");
     return -5;
 }
 //----------------------------------------------------------------------------
@@ -387,7 +380,7 @@ static int dummyChstat()
 {
     remove_flag = 0;
 
-    printf("dummy Chstat function called\n");
+    dbgprintf("dummy Chstat function called\n");
     return -5;
 }
 //----------------------------------------------------------------------------

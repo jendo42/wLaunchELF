@@ -21,6 +21,9 @@
 #include "loadcore.h"
 #include "ps2ip.h"
 #include "sifcmd.h"
+#ifdef SIO_DEBUG
+#include "sior.h"
+#endif // SIO_DEBUG
 #include "stdio.h"
 #include "sysclib.h"
 #include "thbase.h"

@@ -8,6 +8,8 @@
  *
  */
 
+#define DEBUG_MODULE "ps2ftpd"
+#include "../../debug.h"
 
 #ifndef LINUX
 #include "irx_imports.h"
@@ -74,19 +76,21 @@ int FtpServer_Start(FtpServer *pServer)
     // create server socket
 
     if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("ps2ftpd: failed to create socket.\n");
+        DPRINTF("failed to create socket.");
         return -1;
     }
 
     // make a few settings
 
-    /*  SP193: Is this necessary? If it is, a custom build of LWIP is required (SO_REUSE is disabled by default at compile-time)
+#if 0
+    // SP193: Is this necessary? If it is, a custom build of LWIP is required (SO_REUSE is disabled by default at compile-time)
     opt = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
         disconnect(s);
         printf("ps2ftpd: Could not change socket options.\n");
         return -1;
-    } */
+    }
+#endif
 
     // try to bind socket
 
@@ -96,7 +100,7 @@ int FtpServer_Start(FtpServer *pServer)
     sa.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-        printf("ps2ftpd: could not bind to port.\n");
+        DPRINTF("could not bind to port.");
         disconnect(s);
         return -1;
     }
@@ -104,12 +108,12 @@ int FtpServer_Start(FtpServer *pServer)
     // listen to socket
 
     if (listen(s, 1) < 0) {
-        printf("ps2ftpd: could not listen to port.\n");
+        DPRINTF("could not listen to port.");
         disconnect(s);
         return -1;
     }
 
-    printf("ps2ftpd: listening to port %d\n", pServer->m_iPort & 0xffff);
+    DPRINTF("listening to port %d", pServer->m_iPort & 0xffff);
 
     pServer->m_iSocket = s;
 
@@ -211,7 +215,7 @@ int FtpServer_HandleEvents(FtpServer *pServer)
             addr = htonl(sa.sin_addr.s_addr);
             port = htons(sa.sin_port);
 
-            printf("ps2ftpd: new client session (%u.%u.%u.%u:%u)\n",
+            DPRINTF("new client session (%u.%u.%u.%u:%u)",
                    (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff,
                    port);
 #endif
@@ -250,9 +254,9 @@ int FtpServer_HandleEvents(FtpServer *pServer)
 
                     // execute command
 
-#ifdef DEBUG
-                    printf("%08x << %s\r\n", (unsigned int)pClient, pClient->m_CommandBuffer);
-#endif
+
+                    DPRINTF("%08x << %s", (unsigned int)pClient, pClient->m_CommandBuffer);
+
                     FtpClient_OnCommand(pClient, pClient->m_CommandBuffer);
 
                     // get remaining data (safe even if client has disconnected, as it is never freed)
@@ -329,9 +333,7 @@ FtpClient *FtpServer_OnClientConnect(FtpServer *pServer, int iSocket)
 
         send(iSocket, buf, strlen(buf), 0);
         disconnect(iSocket);
-#ifdef DEBUG
-        printf("ps2ftpd: refused connection to client\n");
-#endif
+        DPRINTF("refused connection to client");
         return NULL;
     }
 
@@ -356,9 +358,7 @@ void FtpServer_OnClientDisconnect(const FtpServer *pServer, FtpClient *pClient)
 {
     assert(pServer && pClient);
 
-#ifdef DEBUG
-    printf("ps2ftpd: disconnected client %08x\n", (unsigned int)pClient);
-#endif
+    DPRINTF("disconnected client %08x", (unsigned int)pClient);
 
     // detach from list
 
