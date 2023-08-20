@@ -47,10 +47,11 @@ all: githash.h $(EE_BIN_PKD)
 $(EE_BIN_PKD): $(EE_BIN)
 	ps2-packer $< $@
 
+# use env. variable "PS2HOSTNAME" to set the target machine
 run: all
-	ps2client -h 192.168.0.10 -t 1 execee host:$(EE_BIN)
+	ps2client -t 1 execee host:$(EE_BIN)
 reset: clean
-	ps2client -h 192.168.0.10 reset
+	ps2client reset
 
 format:
 	find . -type f -a \( -iname \*.h -o -iname \*.c \) | xargs clang-format -i
