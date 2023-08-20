@@ -42,6 +42,7 @@
 #include <math.h>
 #include <usbhdfsd-common.h>
 #include "hdl_rpc.h"
+#include "hwinfo.h"
 
 #include <sio.h>
 #include <sior_rpc.h>

@@ -2234,6 +2234,29 @@ static void InitializeBootExecPath()
 //------------------------------
 // endfunc InitializeBootExecPath
 //---------------------------------------------------------------------------
+static void ShowSystemInfo()
+{
+    static u32 mechaconId = 0;
+    u16 temp;
+    char buff[128];
+    u16 len = 0;
+    len += sprintf(buff + len, " \xFF\x34 ROM: %s", ROMVER_data);
+    if (!mechaconId) {
+        hwinfo_get_mechacon_version(&mechaconId);
+    }
+    if (mechaconId) {
+        len += sprintf(buff + len, " \xFF\x34 MECHACON: %.8X", mechaconId);
+    }
+    if (hwinfo_get_temperature(&temp)) {
+        len += sprintf(buff + len, " \xFF""4 TEMP: %0u.%01u \xBA""C", temp >> 7, temp % 10);
+    }
+    if (len) {
+        drawMsg(buff);
+    }
+}
+//------------------------------
+// endfunc ShowSystemTemperature
+//---------------------------------------------------------------------------
 
 //#ifdef SMB
 //#include "SMB_test.c"
@@ -2486,6 +2509,8 @@ int main(int argc, char *argv[])
                 clrScr(setting->color[COLOR_BACKGR]);
             } else  // Display launch filenames/titles on GUI jpg
                 nElfs = drawMainScreen2(TV_mode);
+
+            ShowSystemInfo();
         }
         drawScr();
         post_event = event;

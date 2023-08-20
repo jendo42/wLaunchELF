@@ -12,7 +12,7 @@ EE_OBJS = main.o pad.o config.o elf.o draw.o loader_elf.o filer.o \
 	dvrdrv_irx.o dvrfile_irx.o \
 	cdfs_irx.o ps2ftpd_irx.o ps2host_irx.o vmc_fs_irx.o ps2kbd_irx.o\
 	hdd.o hdl_rpc.o hdl_info_irx.o editor.o timer.o jpgviewer.o icon.o lang.o\
-	font_uLE.o makeicon.o chkesr.o allowdvdv_irx.o
+	font_uLE.o makeicon.o chkesr.o allowdvdv_irx.o hwinfo.o
 
 ifeq ($(SMB),1)
 	EE_OBJS += smbman.o
