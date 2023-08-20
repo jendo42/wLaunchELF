@@ -62,8 +62,8 @@ githash.h:
 	printf '#ifndef ULE_VERDATE\n#define ULE_VERDATE "' > $@ && \
 	git show -s --format=%cd --date=local | tr -d "\n" >> $@ && \
 	printf '"\n#endif\n' >> $@
-	printf '#ifndef GIT_HASH\n#define GIT_HASH "' >> $@ && \
-	git rev-parse --short HEAD | tr -d "\n" >> $@ && \
+	printf '#ifndef GIT_VERSION\n#define GIT_VERSION "' >> $@ && \
+	git describe --tags | tr -d "\n" >> $@ && \
 	printf '"\n#endif\n' >> $@
 
 $(EE_ASM_DIR)mcman_irx.c: $(PS2SDK)/iop/irx/mcman-old.irx | $(EE_ASM_DIR)

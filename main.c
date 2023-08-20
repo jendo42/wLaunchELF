@@ -310,9 +310,9 @@ static void Show_About_uLE(void)
         // Display section
         if (event || post_event) {  // NB: We need to update two frame buffers per event
             clrScr(setting->color[COLOR_BACKGR]);
-            sprintf(TextRow, "About wLaunchELF %s  %s", ULE_VERSION, ULE_VERDATE);
+            sprintf(TextRow, "About wLaunchELF %s  %s", ULE_VERSION, GIT_VERSION);
             PrintPos(03, hpos, TextRow);
-            sprintf(TextRow, "                         commit: %s", GIT_HASH);
+            sprintf(TextRow, "                         %s", ULE_VERDATE);
             PrintPos(04, hpos, TextRow);
             PrintPos(05, hpos, "Project maintainers:");
             PrintPos(-1, hpos, "  sp193");
