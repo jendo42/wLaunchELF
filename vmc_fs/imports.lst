@@ -5,6 +5,7 @@ cdvdman_IMPORTS_end
 sysclib_IMPORTS_start
 I_strlen
 I_strcpy
+I_strcmp
 I_memset
 I_strrchr
 I_sprintf

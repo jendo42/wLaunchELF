@@ -1679,7 +1679,7 @@ int Vmc_Mount(iop_file_t *f, const char *fsname, const char *devname, int flag, 
     lseek(g_Vmc_Image[f->unit].fd, 0, SEEK_SET);
 
     static const char *ps2_sign = "Sony PS2 Memory Card Format";
-    if (strcmp(g_Vmc_Image[f->unit].header.magic, ps2_sign)) {
+    if (strcmp((char *)g_Vmc_Image[f->unit].header.magic, ps2_sign)) {
         //  Card is not formated
         DEBUGPRINT(1, "vmc_fs: Warning vmc file %s is not formated\n", devname);
         if (!setDefaultSpec(f->unit)) {
