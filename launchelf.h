@@ -217,7 +217,7 @@ void loadHdlInfoModule(void);
 int uLE_related(char *pathout, const char *pathin);
 int uLE_InitializeRegion(void);
 int uLE_cdDiscValid(void);
-int uLE_cdStop(void);
+int uLE_cdStop(int event);
 int IsSupportedFileType(char *path);
 
 /* elf.c */

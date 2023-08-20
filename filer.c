@@ -700,7 +700,7 @@ int readCD(const char *path, FILEINFO *info, int max)
         if (cdmode == SCECdNODISC)
             return 0;
         if ((cdmode < SCECdPSCD) || (cdmode > SCECdPS2DVD)) {
-            uLE_cdStop();
+            uLE_cdStop(-1);
             return 0;
         }
     }
@@ -4048,8 +4048,7 @@ int getFilePath(char *out, int cnfmode)
             browser_cd = FALSE;
             browser_up = FALSE;
         }  // ends if(browser_cd)
-        if (!strncmp(path, "cdfs", 4))
-            uLE_cdStop();
+        uLE_cdStop(strncmp(path, "cdfs", 4) ? 0 : event);
         if (top > browser_nfiles - rows)
             top = browser_nfiles - rows;
         if (top < 0)

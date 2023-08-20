@@ -1030,7 +1030,7 @@ int uLE_cdDiscValid(void)  // returns 1 if disc valid, else returns 0
 //------------------------------
 // endfunc uLE_cdDiscValid
 //---------------------------------------------------------------------------
-int uLE_cdStop(void)
+int uLE_cdStop(int event)
 {
     int test;
 
@@ -1046,8 +1046,18 @@ int uLE_cdStop(void)
                 uLE_cdmode = (cdmode == SCECdPS2DVD) ? SCECdESRDVD_1 : SCECdESRDVD_0;
             }
         }
-        sceCdStop();
-        sceCdSync(0);
+
+        static u64 cdTimer = 0;
+        u64 time = Timer();
+        if (event == -1) {
+            cdTimer = 0;
+        } else if (event & 2 || cdmode != old_cdmode) {
+            // pad press + disk change / insertion
+            cdTimer = time + 10000;
+        }
+        if (time >= cdTimer) {
+            sceCdStop();
+        }
     }
     return uLE_cdmode;
 }
@@ -2417,7 +2427,7 @@ int main(int argc, char *argv[])
         int DiscType_ix;
 
         // Background event section
-        uLE_cdStop();              // Test disc state and if needed stop disc (updates cdmode)
+        uLE_cdStop(-1);              // Test disc state and if needed stop disc (updates cdmode)
         if (cdmode == old_cdmode)  // if disc detection did not change state
             goto done_discControl;
 
