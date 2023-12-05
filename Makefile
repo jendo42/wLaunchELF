@@ -67,10 +67,10 @@ githash.h:
 	git describe --tags | tr -d "\n" >> $@ && \
 	printf '"\n#endif\n' >> $@
 
-$(EE_ASM_DIR)mcman_irx.c: $(PS2SDK)/iop/irx/mcman-old.irx | $(EE_ASM_DIR)
+$(EE_ASM_DIR)mcman_irx.c: $(PS2SDK)/iop/irx/mcman.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ mcman_irx
 
-$(EE_ASM_DIR)mcserv_irx.c: $(PS2SDK)/iop/irx/mcserv-old.irx | $(EE_ASM_DIR)
+$(EE_ASM_DIR)mcserv_irx.c: $(PS2SDK)/iop/irx/mcserv.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ mcserv_irx
 
 $(EE_ASM_DIR)dvrdrv_irx.c: $(PS2SDK)/iop/irx/dvrdrv.irx | $(EE_ASM_DIR)

@@ -979,10 +979,9 @@ static void loadBasicModules(void)
     DPRINTF("sior id=%d _start ret=%d\n", id, ret);
 #endif
 
-    SifExecModuleBuffer(mcman_irx, size_mcman_irx, 0, NULL, &ret);  // Home
-    // SifLoadModule("rom0:MCMAN", 0, NULL); //Sony
-    SifExecModuleBuffer(mcserv_irx, size_mcserv_irx, 0, NULL, &ret);  // Home
-    // SifLoadModule("rom0:MCSERV", 0, NULL); //Sony
+    SifExecModuleBuffer(mcman_irx, size_mcman_irx, 0, NULL, &ret);
+    SifExecModuleBuffer(mcserv_irx, size_mcserv_irx, 0, NULL, &ret);
+
     SifLoadModule("rom0:PADMAN", 0, NULL);
 }
 //------------------------------
@@ -2144,7 +2143,7 @@ static void Reset()
     fileXioInit();
     // Increase the FILEIO R/W buffer size to reduce overhead.
     fileXioSetRWBufferSize(128 * 1024);
-    mcInit(MC_TYPE_MC);
+    mcInit(MC_TYPE_XMC);
     //	setupPad();
 }
 //------------------------------
