@@ -67,6 +67,7 @@ u64 freeSpace;
 int mcfreeSpace;
 int mctype_PSx;  // dlanor: Needed for proper scaling of mcfreespace
 int vfreeSpace;  // flags validity of freespace value
+int vfreeSpaceType; // 0 = bytes, 1 = slots
 int browser_cut;
 int nclipFiles, nmarks, nparties, ndvrpparties;
 int file_show = 1;  // dlanor: 0==name_only, 1==name+size+time, 2==title+size+time
@@ -3649,6 +3650,7 @@ int getFilePath(char *out, int cnfmode)
 
     font_height = FONT_HEIGHT;
     rows = (Menu_end_y - Menu_start_y) / font_height;
+    vfreeSpaceType = 0;
 
     event = 1;  // event = initial entry
     while (1) {
@@ -4000,7 +4002,15 @@ int getFilePath(char *out, int cnfmode)
                 if (!strncmp(path, "mc", 2)) {
                     mcGetInfo(path[2] - '0', 0, &mctype_PSx, &mcfreeSpace, NULL);
                     mcSync(0, NULL, &ret);
-                    freeSpace = mcfreeSpace * ((mctype_PSx == 1) ? 8192 : 1024);
+                    freeSpace = mcfreeSpace;
+                    if (mctype_PSx == sceMcTypePS2) {
+                        // free space in bytes
+                        freeSpace *= 1024;
+                        vfreeSpaceType = 0;
+                    } else {
+                        // free space in slots
+                        vfreeSpaceType = 1;
+                    }
                     vfreeSpace = TRUE;
                 } else if (!strncmp(path, "vmc", 3)) {
                     strncpy(tmp, path, 5);
@@ -4251,12 +4261,17 @@ int getFilePath(char *out, int cnfmode)
             }
             setScrTmp(msg0, msg1);
             if (vfreeSpace) {
-                if (freeSpace >= 1024 * 1024)
-                    sprintf(tmp, "[%.1fMB %s]", (double)freeSpace / 1024 / 1024, LNG(free));
-                else if (freeSpace >= 1024)
-                    sprintf(tmp, "[%.1fKB %s]", (double)freeSpace / 1024, LNG(free));
-                else
-                    sprintf(tmp, "[%dB %s]", (int)freeSpace, LNG(free));
+                if (vfreeSpaceType == 1) {
+                    sprintf(tmp, "[%d %s %s]", (int)freeSpace, LNG(slots), LNG(free));
+                } else {
+                    if (freeSpace >= 1024 * 1024)
+                        sprintf(tmp, "[%.1fMB %s]", (double)freeSpace / 1024 / 1024, LNG(free));
+                    else if (freeSpace >= 1024)
+                        sprintf(tmp, "[%.1fKB %s]", (double)freeSpace / 1024, LNG(free));
+                    else
+                        sprintf(tmp, "[%dB %s]", (int)freeSpace, LNG(free));
+                }
+
                 ret = strlen(tmp);
                 drawSprite(setting->color[COLOR_BACKGR],
                            SCREEN_WIDTH - SCREEN_MARGIN - (ret + 1) * FONT_WIDTH, (Menu_message_y - 1),
