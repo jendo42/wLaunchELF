@@ -667,16 +667,36 @@ int readMC(const char *path, FILEINFO *info, int max)
         time_valid = 1;
     size_valid = 1;
 
-    strcpy(dir, &path[4]);
+    strcpy(dir, path + 4);
     strcat(dir, "*");
     mcGetDir(path[2] - '0', 0, dir, 0, MAX_ENTRY - 2, mcDir);
     mcSync(0, NULL, &ret);
 
     for (i = j = 0; i < ret; i++) {
-        if (mcDir[i].AttrFile & sceMcFileAttrSubdir &&
-            (!strcmp((char *)mcDir[i].EntryName, ".") || !strcmp((char *)mcDir[i].EntryName, "..")))
-            continue;  // Skip pseudopaths "." and ".."
-        strcpy(info[j].name, (char *)mcDir[i].EntryName);
+        const unsigned char *entryName = mcDir[i].EntryName;
+        if (mcDir[i].AttrFile & sceMcFileAttrSubdir) {
+            if (entryName[0] == '.') {
+                switch (entryName[1]) {
+                    case 0:
+                        // skip "."
+                        continue;
+                    case '.':
+                        if (entryName[2] == 0) {
+                            // skip ".."
+                            continue;
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
+
+        // fast copy entry name (32 bytes)
+        u128 *dst = (u128 *)info[j].name;
+        u128 *src = (u128 *)mcDir[i].EntryName;
+        dst[0] = src[0];
+        dst[1] = src[1];
+
         info[j].stats = mcDir[i];
         j++;
     }
