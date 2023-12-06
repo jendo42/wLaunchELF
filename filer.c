@@ -3998,6 +3998,8 @@ int getFilePath(char *out, int cnfmode)
         //----- Process newly entered directory here (incl initial entry)
         if (browser_cd) {
             DPRINTF("Changing directory to '%s'", path);
+            sprintf(msg0, LNG(DIR_loading_contents), path);
+            drawMsg(msg0);
             browser_nfiles = setFileList(path, ext, files, cnfmode);
             DPRINTF(" -> found %d files", browser_nfiles);
             if (!cnfmode) {  // Calculate free space (unless configuring)

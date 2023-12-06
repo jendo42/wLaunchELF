@@ -377,6 +377,7 @@ lang(325, Unload_HDL_Game_Info, "Unload HDL Game Info")
 lang(326, HDD_Information_Read_Overflow, "HDD Information Read (truncated)")
 //---------------------------------------------------------------------------
 lang(327, slots, "slot(s)")
+lang(328, DIR_loading_contents, "Loading '%s', please wait...")
 
     // clang-format on
     //---------------------------------------------------------------------------
