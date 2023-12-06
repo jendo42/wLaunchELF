@@ -1738,7 +1738,12 @@ int IsSupportedFileType(char *path)
     if (strchr(path, ':') != NULL) {
         if (genCmpFileExt(path, "ELF")) {
             return (checkELFheader(path) >= 0);
-        } else if (genCmpFileExt(path, "TXT") || (genCmpFileExt(path, "JPG") || genCmpFileExt(path, "JPEG"))) {
+        } else if (
+               genCmpFileExt(path, "TXT")
+            || genCmpFileExt(path, "JPG")
+            || genCmpFileExt(path, "JPEG")
+            || !strcasecmp(path, "cdfs:/SYSTEM.CNF")
+        ) {
             return 1;
         } else
             return 0;
@@ -1873,7 +1878,7 @@ Recurse_for_ESR:  // Recurse here for PS2Disc command with ESR disc
         CleanUp();
         LoadExecPS2(kelf_loader, argc, args);
 
-    } else if (!strcasecmp(path, setting->Misc_PS2Disc)) {
+    } else if (!strcasecmp(path, setting->Misc_PS2Disc) || !strcasecmp(pathin, "cdfs:/SYSTEM.CNF")) {
         drawMsg(LNG(Reading_SYSTEMCNF));
         party[0] = 0;
         readSystemCnf();
